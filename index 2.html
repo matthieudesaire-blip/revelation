@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gender Reveal - Faites vos paris 👶</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #ffdde1, #c1e3ff);
+    color: #333;
+}
+
+.container {
+    padding: 40px 20px;
+    max-width: 600px;
+    margin: auto;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+#countdown {
+    font-size: 2em;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.vote-buttons button {
+    font-size: 1.1em;
+    padding: 12px 25px;
+    margin: 10px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.boy { background-color: #6ec6ff; }
+.girl { background-color: #ff9ecf; }
+
+.vote-buttons button:hover {
+    transform: scale(1.05);
+}
+
+.bar-container {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.bar {
+    width: 100%;
+    height: 30px;
+    background: #eee;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    width: 0%;
+    line-height: 30px;
+    color: white;
+    text-align: right;
+    padding-right: 10px;
+    border-radius: 20px;
+    transition: width 0.8s ease;
+}
+
+.boy-fill { background-color: #42a5f5; }
+.girl-fill { background-color: #ec407a; }
+
+.reveal {
+    display: none;
+    font-size: 2.5em;
+    margin-top: 30px;
+    animation: pop 1s ease forwards;
+}
+
+@keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>👶 Faites vos paris ! 👶</h1>
+    <div id="countdown"></div>
+
+    <div id="voteSection" class="vote-buttons">
+        <button class="boy" onclick="vote('boy')">💙 Garçon</button>
+        <button class="girl" onclick="vote('girl')">💖 Fille</button>
+    </div>
+
+    <div class="bar-container">
+        <div class="label">💙 Garçon</div>
+        <div class="bar">
+            <div id="boyBar" class="fill boy-fill">0%</div>
+        </div>
+    </div>
+
+    <div class="bar-container">
+        <div class="label">💖 Fille</div>
+        <div class="bar">
+            <div id="girlBar" class="fill girl-fill">0%</div>
+        </div>
+    </div>
+
+    <div id="reveal" class="reveal">
+        🎉 C'EST UNE FILLE 😭 🎉
+    </div>
+</div>
+
+<script>
+const targetDate = new Date("February 18, 2026 09:30:00").getTime();
+
+let votes = JSON.parse(localStorage.getItem("votes")) || { boy: 0, girl: 0 };
+let hasVoted = localStorage.getItem("hasVoted");
+
+function updateBars() {
+    const total = votes.boy + votes.girl;
+
+    let boyPercent = 0;
+    let girlPercent = 0;
+
+    if (total > 0) {
+        boyPercent = Math.round((votes.boy / total) * 100);
+        girlPercent = Math.round((votes.girl / total) * 100);
+    }
+
+    document.getElementById("boyBar").style.width = boyPercent + "%";
+    document.getElementById("boyBar").innerText = boyPercent + "%";
+
+    document.getElementById("girlBar").style.width = girlPercent + "%";
+    document.getElementById("girlBar").innerText = girlPercent + "%";
+}
+
+function vote(choice) {
+    if (hasVoted) {
+        alert("Tu as déjà voté 😄");
+        return;
+    }
+
+    votes[choice]++;
+    localStorage.setItem("votes", JSON.stringify(votes));
+    localStorage.setItem("hasVoted", true);
+    hasVoted = true;
+
+    updateBars();
+}
+
+updateBars();
+
+const interval = setInterval(function() {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance <= 0) {
+        clearInterval(interval);
+        document.getElementById("countdown").style.display = "none";
+        document.getElementById("voteSection").style.display = "none";
+        document.getElementById("reveal").style.display = "block";
+        return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("countdown").innerHTML =
+        `⏳ ${days}j ${hours}h ${minutes}m ${seconds}s`;
+}, 1000);
+</script>
+
+</body>
+</html>
